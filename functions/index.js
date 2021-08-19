@@ -15,3 +15,10 @@ exports.toTheDojo = functions.https.onRequest((request, response) => {
 	// response.redirect('https://www.thenetninja.co.uk');
 	response.redirect("https://www.codewars.com");
 });
+
+// http callable function
+// we don't get a response object so we just return wathever we want to the endpoint
+exports.sayHello = functions.https.onCall((data, context) => {
+	const user = data.name;
+	return `Hello ${user}`;
+});
