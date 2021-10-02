@@ -41,3 +41,28 @@ exports.userDeleted = functions.auth.user().onDelete((user) => {
 	const doc = admin.firestore().collection("users").doc(user.uid);
 	return doc.delete();
 });
+
+// http callable function (adding a request)
+// data: most probably data from the front
+// context: useful information like user status (logged in)
+exports.addRequest = functions.https.onCall((data, context) => {
+	if (!context.auth) {
+		throw new functions.https.HttpsError(
+			"unauthenticated", // this is an error code from the list https://firebase.google.com/docs/reference/functions/providers_https_#functionserrorcode
+			"only authenticated users can add requests" // error log returned to the frontend
+		);
+	}
+	if (data.text.length > 30) {
+		throw new functions.https.HttpsError(
+			"invalid-argument",
+			"request must be no more than 30 characters long"
+		);
+	}
+	// when we call we need to return something to the user
+	// returns a promise to the client
+	// inside the .add we put a DOCUMENT
+	return admin.firestore().collection("requests").add({
+		text: data.text,
+		upvotes: 0,
+	});
+});
